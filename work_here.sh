@@ -1,20 +1,43 @@
 #!/bin/bash
 
-tmux rename-window -t 0 "positnn"
-tmux send-keys -t "positnn" "cd ~/uni/code/positnn/include/positnn" C-m
+# Set Session Name
+SESSION="main"
+SESSIONEXISTS=$(tmux list-sessions | grep $SESSION)
 
-tmux new-window -n "project"
-tmux send-keys -t "project" "cd ~/uni/code/mnist_lenet5" C-m
+# Only create tmux session if it doesn't already exist
+if [ "$SESSIONEXISTS" = "" ]
+then
+	# Start New Session with our name
+	tmux new-session -d -s $SESSION
 
-tmux new-window -n "build"
-tmux send-keys -t "build" "cd ~/uni/code/mnist_lenet5/build" C-m
-#tmux send-keys -t "build" "export TorchDIR='/home/graposo/uni/code/libtorch-linux'" C-m
-#tmux send-keys -t "build" "scl enable devtoolset-7 bash" C-m
+	tmux send-keys ". ~/.bashrc" C-m
+fi
 
-tmux new-window -n "logbook"
-tmux send-keys -t "logbook" "cd ~/uni/logbook" C-m
+tmux new-window -t 0 -n "temp0"
+tmux send-keys -t "temp0" "cd uni/code/positnn/include/positnn" C-m
+tmux rename-window -t "temp0" "positnn"
 
-#tmux new-window -n "plots"
-#tmux send-keys -t "plots" "cd ~/uni/code/mnist/plots" C-m
+tmux new-window -t 1 -n "temp1"
+tmux send-keys -t "temp1" "cd uni/code/fashion_mnist_lenet5" C-m
+tmux rename-window -t "temp1" "project"
+
+tmux new-window -t 2 -n "temp2"
+tmux send-keys -t "temp2" "cd uni/code/fashion_mnist_lenet5/build" C-m
+tmux send-keys -t "temp2" "export Torch_DIR=/home/graposo/Documents/deep-learning-posit/code/libtorch/share/cmake/Torch/" C-m
+tmux send-keys -t "temp2" "scl enable devtoolset-7 bash" C-m
+tmux rename-window -t "temp2" "build"
+
+tmux new-window -t 3 -n "temp3"
+tmux send-keys -t "temp3" "cd uni/logbook" C-m
+tmux rename-window -t "temp3" "logbook"
+
+tmux new-window -t 4 -n "temp4"
+tmux send-keys -t "temp4" "cd uni/code/fashion_mnist_lenet5/plots" C-m
+tmux send-keys -t "temp4" "export DISPLAY=$DISPLAY" C-m
+tmux send-keys -t "temp4" "source activate plots" C-m
+tmux rename-window -t "temp4" "plots"
 
 tmux select-window -t 0
+
+# Attach Session, on the Main window
+tmux attach-session -t $SESSION
